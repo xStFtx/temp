@@ -2,31 +2,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import quad
 from functools import lru_cache
+from multiprocessing import Pool
 
 class AdvancedFourierSeries:
     def __init__(self, f, P, N):
-        self.f = f  # The periodic function
-        self.P = P  # Period of the function
-        self.N = N  # Number of terms in the series
+        self.f = f
+        self.P = P
+        self.N = N
 
     @lru_cache(maxsize=None)
     def compute_coefficients(self):
-        # Efficiently compute the Fourier coefficients using quad (adaptive quadrature)
-        coefficients = []
-        for n in range(-self.N, self.N + 1):
-            cn, _ = quad(lambda x: self.f(x) * np.exp(-1j * 2 * np.pi * n * x / self.P), -self.P/2, self.P/2)
-            cn = (1 / self.P) * cn
-            coefficients.append(cn)
+        # Parallel computation of coefficients
+        with Pool() as pool:
+            coefficients = pool.map(self.integrate_coefficient, range(-self.N, self.N + 1))
         return coefficients
 
+    def integrate_coefficient(self, n):
+        # Integral calculation for a single coefficient
+        cn, _ = quad(lambda x: self.f(x) * np.exp(-1j * 2 * np.pi * n * x / self.P), -self.P/2, self.P/2)
+        return (1 / self.P) * cn
+
     def series_approximation(self, x):
-        # Compute the Fourier series approximation for the value x
         coefficients = self.compute_coefficients()
-        f_approx = np.zeros_like(x, dtype=complex)
-        for n, cn in enumerate(coefficients):
-            n_shifted = n - self.N  # Shift index to go from -N to N
-            f_approx += cn * np.exp(1j * 2 * np.pi * n_shifted * x / self.P)
-        return f_approx.real
+        n_values = np.arange(-self.N, self.N + 1)
+        exp_values = np.exp(1j * 2 * np.pi * np.outer(n_values, x) / self.P)
+        return np.dot(coefficients, exp_values).real
 
     def plot_approximation(self):
         x_values = np.linspace(-self.P / 2, self.P / 2, 1000)
