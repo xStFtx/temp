@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import quad
-from functools import lru_cache
-from multiprocessing import Pool
+import multiprocessing
+import os
 
 class AdvancedFourierSeries:
     def __init__(self, f, P, N):
@@ -10,16 +10,17 @@ class AdvancedFourierSeries:
         self.P = P
         self.N = N
 
-    @lru_cache(maxsize=None)
     def compute_coefficients(self):
-        # Parallel computation of coefficients
-        with Pool() as pool:
-            coefficients = pool.map(self.integrate_coefficient, range(-self.N, self.N + 1))
+        # Vectorized computation of coefficients
+        n_values = np.arange(-self.N, self.N + 1)
+        coefficients = np.array([self.integrate_coefficient(n) for n in n_values])
         return coefficients
 
     def integrate_coefficient(self, n):
         # Integral calculation for a single coefficient
-        cn, _ = quad(lambda x: self.f(x) * np.exp(-1j * 2 * np.pi * n * x / self.P), -self.P/2, self.P/2)
+        cn, error = quad(lambda x: self.f(x) * np.exp(-1j * 2 * np.pi * n * x / self.P), -self.P/2, self.P/2)
+        if error > 1e-6:  # Arbitrary error threshold
+            print(f"Warning: High integration error for n={n}")
         return (1 / self.P) * cn
 
     def series_approximation(self, x):
@@ -28,21 +29,24 @@ class AdvancedFourierSeries:
         exp_values = np.exp(1j * 2 * np.pi * np.outer(n_values, x) / self.P)
         return np.dot(coefficients, exp_values).real
 
-    def plot_approximation(self):
-        x_values = np.linspace(-self.P / 2, self.P / 2, 1000)
-        f_approx = self.series_approximation(x_values)
+def plot_approximation(advanced_fourier, f):
+    x_values = np.linspace(-advanced_fourier.P / 2, advanced_fourier.P / 2, 1000)
+    f_approx = advanced_fourier.series_approximation(x_values)
+    f_actual = np.vectorize(f)(x_values)
 
-        plt.plot(x_values, f_approx)
-        plt.title('Advanced Fourier Series Approximation')
-        plt.xlabel('x')
-        plt.ylabel('f(x)')
-        plt.grid(True)
-        plt.show()
+    plt.plot(x_values, f_approx, label='Fourier Approximation')
+    plt.plot(x_values, f_actual, label='Actual Function', linestyle='--')
+    plt.title('Advanced Fourier Series Approximation')
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 # Example usage
 P = 2 * np.pi
 N = 50
-f = np.vectorize(lambda x: 1 if x < 0 else -1)
+f = lambda x: 1 if x < 0 else -1
 
 advanced_fourier = AdvancedFourierSeries(f, P, N)
-advanced_fourier.plot_approximation()
+plot_approximation(advanced_fourier, f)
