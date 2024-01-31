@@ -1,52 +1,44 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.integrate import quad
-import multiprocessing
-import os
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.link = None
 
-class AdvancedFourierSeries:
-    def __init__(self, f, P, N):
-        self.f = f
-        self.P = P
-        self.N = N
+class LinkedList:
+    def __init__(self):
+        self.head = None
 
-    def compute_coefficients(self):
-        # Vectorized computation of coefficients
-        n_values = np.arange(-self.N, self.N + 1)
-        coefficients = np.array([self.integrate_coefficient(n) for n in n_values])
-        return coefficients
+    def add(self, data):
+        if not self.head:
+            self.head = Node(data)
+        else:
+            current = self.head
+            while current.link:
+                current = current.link
+            current.link = Node(data)
 
-    def integrate_coefficient(self, n):
-        # Integral calculation for a single coefficient
-        cn, error = quad(lambda x: self.f(x) * np.exp(-1j * 2 * np.pi * n * x / self.P), -self.P/2, self.P/2)
-        if error > 1e-6:  # Arbitrary error threshold
-            print(f"Warning: High integration error for n={n}")
-        return (1 / self.P) * cn
+    def search(self, target):
+        pre = None
+        cur = self.head
 
-    def series_approximation(self, x):
-        coefficients = self.compute_coefficients()
-        n_values = np.arange(-self.N, self.N + 1)
-        exp_values = np.exp(1j * 2 * np.pi * np.outer(n_values, x) / self.P)
-        return np.dot(coefficients, exp_values).real
+        while cur and target > cur.data:
+            pre = cur
+            cur = cur.link
 
-def plot_approximation(advanced_fourier, f):
-    x_values = np.linspace(-advanced_fourier.P / 2, advanced_fourier.P / 2, 1000)
-    f_approx = advanced_fourier.series_approximation(x_values)
-    f_actual = np.vectorize(f)(x_values)
+        flag = False
+        if cur and cur.data == target:
+            flag = True
 
-    plt.plot(x_values, f_approx, label='Fourier Approximation')
-    plt.plot(x_values, f_actual, label='Actual Function', linestyle='--')
-    plt.title('Advanced Fourier Series Approximation')
-    plt.xlabel('x')
-    plt.ylabel('f(x)')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+        # Returning the data of pre and cur nodes, and the flag status
+        pre_data = pre.data if pre else None
+        cur_data = cur.data if cur else None
+        return pre_data, cur_data, flag
 
 # Example usage
-P = 2 * np.pi
-N = 50
-f = lambda x: 1 if x < 0 else -1
+ll = LinkedList()
+ll.add(1)
+ll.add(2)
+ll.add(4)
+ll.add(5)
 
-advanced_fourier = AdvancedFourierSeries(f, P, N)
-plot_approximation(advanced_fourier, f)
+pre_data, cur_data, flag = ll.search(3)
+print("Pre:", pre_data, "Cur:", cur_data, "Found:", flag)
