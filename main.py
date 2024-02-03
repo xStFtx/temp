@@ -1,13 +1,14 @@
 class Node:
     def __init__(self, data):
         self.data = data
-        self.prev = None  # For doubly linked list
+        self.prev = None
         self.link = None
 
 class LinkedList:
     def __init__(self):
         self.head = None
-        self.tail = None  # Keeping track of tail for efficient additions
+        self.tail = None
+        self.length = 0
 
     def add(self, *data):
         for item in data:
@@ -18,6 +19,7 @@ class LinkedList:
                 self.tail.link = new_node
                 new_node.prev = self.tail
             self.tail = new_node
+            self.length += 1
 
     def remove(self, data):
         current = self.head
@@ -33,30 +35,36 @@ class LinkedList:
                 current.link.prev = current.prev
             else:
                 self.tail = current.prev
+            self.length -= 1
             return True
         else:
             return False
 
     def insert(self, index, data):
         if index < 0:
-            return False  # Negative index not allowed
+            index = self.length + index
+        if index < 0 or index > self.length:
+            return False
         new_node = Node(data)
         if index == 0:
             if self.head:
                 new_node.link = self.head
                 self.head.prev = new_node
+            else:
+                self.tail = new_node
             self.head = new_node
         else:
             current = self.head
             for _ in range(index - 1):
-                if current is None:
-                    return False  # Index out of bounds
                 current = current.link
             new_node.link = current.link
             if current.link:
                 current.link.prev = new_node
+            else:
+                self.tail = new_node
             new_node.prev = current
             current.link = new_node
+        self.length += 1
         return True
 
     def reverse(self):
@@ -76,6 +84,14 @@ class LinkedList:
             index += 1
         return -1
 
+    def find(self, callback):
+        current = self.head
+        while current:
+            if callback(current.data):
+                return current.data
+            current = current.link
+        return None
+
     def __iter__(self):
         self._iter_node = self.head
         return self
@@ -94,22 +110,7 @@ class LinkedList:
         while current:
             elements.append(str(current.data))
             current = current.link
-        return ' <-> '.join(elements)  # Changed to <-> to indicate bidirectional links
+        return ' <-> '.join(elements)
 
-# Example usage
-ll = LinkedList()
-ll.add(1, 2, 4, 5)  # Adding multiple elements
-
-print("LinkedList:", ll)
-print("Search 3 position:", ll.search(3))
-ll.insert(2, 3)
-print("After Inserting 3:", ll)
-ll.remove(3)
-print("After Removing 3:", ll)
-ll.reverse()
-print("Reversed LinkedList:", ll)
-
-# Iterating through LinkedList
-print("Iterating through LinkedList:")
-for item in ll:
-    print(item)
+    def __len__(self):
+        return self.length
