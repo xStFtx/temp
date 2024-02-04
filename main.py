@@ -2,7 +2,7 @@ class Node:
     def __init__(self, data):
         self.data = data
         self.prev = None
-        self.link = None
+        self.next = None  # Renamed from 'link' to 'next' for clarity
 
 class LinkedList:
     def __init__(self):
@@ -12,67 +12,60 @@ class LinkedList:
 
     def add(self, *data):
         for item in data:
-            new_node = Node(item)
-            if not self.head:
-                self.head = new_node
-            else:
-                self.tail.link = new_node
-                new_node.prev = self.tail
-            self.tail = new_node
-            self.length += 1
+            self.insert(self.length, item)
 
     def remove(self, data):
         current = self.head
-        while current and current.data != data:
-            current = current.link
-
-        if current:
-            if current.prev:
-                current.prev.link = current.link
-            else:
-                self.head = current.link
-            if current.link:
-                current.link.prev = current.prev
-            else:
-                self.tail = current.prev
-            self.length -= 1
-            return True
-        else:
-            return False
+        while current:
+            if current.data == data:
+                if current.prev:
+                    current.prev.next = current.next
+                else:
+                    self.head = current.next
+                if current.next:
+                    current.next.prev = current.prev
+                else:
+                    self.tail = current.prev
+                self.length -= 1
+                return True
+            current = current.next
+        return False
 
     def insert(self, index, data):
         if index < 0:
-            index = self.length + index
+            index += self.length
         if index < 0 or index > self.length:
-            return False
+            raise IndexError("Index out of bounds")
+
         new_node = Node(data)
         if index == 0:
-            if self.head:
-                new_node.link = self.head
-                self.head.prev = new_node
+            if not self.head:
+                self.head = self.tail = new_node
             else:
-                self.tail = new_node
-            self.head = new_node
+                new_node.next = self.head
+                self.head.prev = new_node
+                self.head = new_node
+        elif index == self.length:
+            self.tail.next = new_node
+            new_node.prev = self.tail
+            self.tail = new_node
         else:
             current = self.head
-            for _ in range(index - 1):
-                current = current.link
-            new_node.link = current.link
-            if current.link:
-                current.link.prev = new_node
-            else:
-                self.tail = new_node
-            new_node.prev = current
-            current.link = new_node
+            for _ in range(index):
+                current = current.next
+            new_node.prev = current.prev
+            new_node.next = current
+            current.prev.next = new_node
+            current.prev = new_node
+
         self.length += 1
-        return True
 
     def reverse(self):
-        self.head, self.tail = self.tail, self.head
         current = self.head
         while current:
-            current.prev, current.link = current.link, current.prev
-            current = current.link
+            current.prev, current.next = current.next, current.prev
+            current = current.prev
+        self.head, self.tail = self.tail, self.head
 
     def search(self, target):
         current = self.head
@@ -80,7 +73,7 @@ class LinkedList:
         while current:
             if current.data == target:
                 return index
-            current = current.link
+            current = current.next
             index += 1
         return -1
 
@@ -89,7 +82,7 @@ class LinkedList:
         while current:
             if callback(current.data):
                 return current.data
-            current = current.link
+            current = current.next
         return None
 
     def __iter__(self):
@@ -99,18 +92,16 @@ class LinkedList:
     def __next__(self):
         if self._iter_node:
             data = self._iter_node.data
-            self._iter_node = self._iter_node.link
+            self._iter_node = self._iter_node.next
             return data
         else:
             raise StopIteration
 
     def __str__(self):
-        elements = []
-        current = self.head
-        while current:
-            elements.append(str(current.data))
-            current = current.link
-        return ' <-> '.join(elements)
+        return " <-> ".join(str(node.data) for node in self)
+
+    def __repr__(self):
+        return f"LinkedList([{', '.join(repr(node.data) for node in self)}])"
 
     def __len__(self):
         return self.length
