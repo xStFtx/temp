@@ -1,10 +1,18 @@
 class Solution:
-    def numSquares(self, n: int) -> int:
-        dp = [float('inf')] * (n + 1)
-        dp[0] = 0
-        for i in range(1, n + 1):
-            j = 1
-            while j * j <= i:
-                dp[i] = min(dp[i], dp[i - j * j] + 1)
-                j += 1
-        return dp[n]
+    def countSubstrings(self, s: str) -> int:
+        def expandAroundCenter(left: int, right: int) -> int:
+            count = 0
+            while left >= 0 and right < len(s) and s[left] == s[right]:
+                count += 1
+                left -= 1
+                right += 1
+            return count
+
+        total_palindromes = 0
+        for i in range(len(s)):
+            # Odd length palindromes
+            total_palindromes += expandAroundCenter(i, i)
+            # Even length palindromes
+            total_palindromes += expandAroundCenter(i, i + 1)
+
+        return total_palindromes
