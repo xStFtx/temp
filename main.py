@@ -1,18 +1,23 @@
+from typing import List
+
 class Solution:
-    def countSubstrings(self, s: str) -> int:
-        def expandAroundCenter(left: int, right: int) -> int:
-            count = 0
-            while left >= 0 and right < len(s) and s[left] == s[right]:
-                count += 1
-                left -= 1
-                right += 1
-            return count
-
-        total_palindromes = 0
-        for i in range(len(s)):
-            # Odd length palindromes
-            total_palindromes += expandAroundCenter(i, i)
-            # Even length palindromes
-            total_palindromes += expandAroundCenter(i, i + 1)
-
-        return total_palindromes
+    def cherryPickup(self, grid: List[List[int]]) -> int:
+        rows, cols = len(grid), len(grid[0])
+        dp = [[[None for _ in range(cols)] for _ in range(cols)] for _ in range(rows)]
+        
+        def dfs(row, col1, col2):
+            if col1 < 0 or col1 >= cols or col2 < 0 or col2 >= cols:
+                return 0
+            if dp[row][col1][col2] is not None:
+                return dp[row][col1][col2]
+            result = grid[row][col1] + (grid[row][col2] if col1 != col2 else 0)
+            if row != rows - 1:
+                max_cherries = 0
+                for new_col1 in [col1-1, col1, col1+1]:
+                    for new_col2 in [col2-1, col2, col2+1]:
+                        max_cherries = max(max_cherries, dfs(row + 1, new_col1, new_col2))
+                result += max_cherries
+            dp[row][col1][col2] = result
+            return result
+        
+        return dfs(0, 0, cols-1)
