@@ -1,23 +1,43 @@
-import heapq
-from typing import List
-
 class Solution:
-    def furthestBuilding(self, heights: List[int], bricks: int, ladders: int) -> int:
-        n = len(heights)
-        diff_heap = []  # Min heap to store the differences between consecutive buildings' heights
 
-        for i in range(1, n):
-            diff = heights[i] - heights[i - 1]
+    def mostBooked(self, n: int, meetings: List[List[int]]) -> int:
 
-            if diff > 0:
-                heapq.heappush(diff_heap, diff)
+        meetings.sort() # make sure start times are sorted!!
 
-                # If the number of differences exceeds the available ladders, use bricks
-                if len(diff_heap) > ladders:
-                    bricks -= heapq.heappop(diff_heap)
+        
 
-                # If there are not enough bricks, return the current index
-                if bricks < 0:
-                    return i - 1
+        meetingCount = [0 for _ in range(n)]
 
-        return n - 1
+        availableRooms = list(range(n)); heapify(availableRooms)
+
+        occupiedRooms = []
+
+        
+
+        
+
+        for start, end in meetings:
+
+            while occupiedRooms and start >= occupiedRooms[0][0]:
+
+                heappush(availableRooms, heappop(occupiedRooms)[1]) # frees room and makes it available
+
+            
+
+            if availableRooms:
+
+                roomNumber = heappop(availableRooms)  # assigns next available room
+
+            else:
+
+                freedEnd, roomNumber = heappop(occupiedRooms)  # waits until the next room that would be available gets free
+
+                end += freedEnd - start
+
+            heappush(occupiedRooms, (end,roomNumber))  # make note that the ruom is occupied and when the assigned meeting ends
+
+            meetingCount[roomNumber] += 1  # update meeting counter
+
+            
+
+        return sorted([(count, i) for i, count in enumerate(meetingCount)], key = lambda x: (-x[0], x[1]))[0][1]  # find room with most meetings
