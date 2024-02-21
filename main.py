@@ -1,9 +1,10 @@
 class Solution:
-    def missingNumber(self, nums):
-        n = len(nums)
-        missing_number = n
+    def rangeBitwiseAnd(self, left: int, right: int) -> int:
+        shift = 0
         
-        for i in range(n):
-            missing_number ^= i ^ nums[i]
+        while left < right:
+            left >>= 1
+            right >>= 1
+            shift += 1
         
-        return missing_number
+        return left << shift
