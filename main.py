@@ -1,19 +1,26 @@
-from typing import List
+import heapq
+from collections import defaultdict
 
 class Solution:
-    def findJudge(self, n: int, trust: List[List[int]]) -> int:
-        # Arrays to track in-degree and out-degree of each person
-        in_degree = [0] * (n + 1)
-        out_degree = [0] * (n + 1)
+    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+        graph = defaultdict(list)
 
-        # Count in-degrees and out-degrees based on the trust relationships
-        for t in trust:
-            out_degree[t[0]] += 1
-            in_degree[t[1]] += 1
+        for u, v, w in flights:
+            graph[u].append((v, w))
 
-        # Check for the person with in-degree (n-1) and out-degree 0
-        for i in range(1, n + 1):
-            if in_degree[i] == n - 1 and out_degree[i] == 0:
-                return i
+        heap = [(0, src, 0)]  # (cost, current city, stops)
+        memo = {}
 
-        return -1  # Town judge not found
+        while heap:
+            cost, current, stops = heapq.heappop(heap)
+
+            if current == dst:
+                return cost
+
+            if stops <= k:
+                if (current, stops) not in memo or cost < memo[(current, stops)]:
+                    memo[(current, stops)] = cost
+                    for neighbor, price in graph[current]:
+                        heapq.heappush(heap, (cost + price, neighbor, stops + 1))
+
+        return -1
