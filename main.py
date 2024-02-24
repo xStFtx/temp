@@ -1,26 +1,20 @@
-import heapq
-from collections import defaultdict
-
 class Solution:
-    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
-        graph = defaultdict(list)
-
-        for u, v, w in flights:
-            graph[u].append((v, w))
-
-        heap = [(0, src, 0)]  # (cost, current city, stops)
-        memo = {}
-
-        while heap:
-            cost, current, stops = heapq.heappop(heap)
-
-            if current == dst:
-                return cost
-
-            if stops <= k:
-                if (current, stops) not in memo or cost < memo[(current, stops)]:
-                    memo[(current, stops)] = cost
-                    for neighbor, price in graph[current]:
-                        heapq.heappush(heap, (cost + price, neighbor, stops + 1))
-
-        return -1
+    def findAllPeople(self, n: int, meetings: List[List[int]], firstPerson: int) -> List[int]:
+        can = {0, firstPerson}
+        for _, grp in groupby(sorted(meetings, key=lambda x: x[2]), key=lambda x: x[2]): 
+            queue = set()
+            graph = defaultdict(list)
+            for x, y, _ in grp: 
+                graph[x].append(y)
+                graph[y].append(x)
+                if x in can: queue.add(x)
+                if y in can: queue.add(y)
+                    
+            queue = deque(queue)
+            while queue: 
+                x = queue.popleft()
+                for y in graph[x]: 
+                    if y not in can: 
+                        can.add(y)
+                        queue.append(y)
+        return can
