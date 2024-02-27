@@ -6,16 +6,17 @@
 #         self.right = right
 
 class Solution:
-    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
-        # If both trees are empty, they are the same
-        if not p and not q:
-            return True
-        # If one of the trees is empty, they are not the same
-        if not p or not q:
-            return False
-        # If the values of the current nodes are different, they are not the same
-        if p.val != q.val:
-            return False
-        
-        # Recursively check the left and right subtrees
-        return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        def depth(node):
+            if not node:
+                return 0
+            left_depth = depth(node.left)
+            right_depth = depth(node.right)
+            # Diameter at each node is the sum of depths of left and right subtrees
+            self.result = max(self.result, left_depth + right_depth)
+            # Return the depth of the current node
+            return 1 + max(left_depth, right_depth)
+
+        self.result = 0  # Variable to store the diameter
+        depth(root)
+        return self.result
