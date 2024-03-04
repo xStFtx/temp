@@ -1,28 +1,23 @@
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
+from typing import List
 
 class Solution:
-    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
-        # Create a dummy node to handle edge cases
-        dummy = ListNode(0)
-        dummy.next = head
+    def bagOfTokensScore(self, tokens: List[int], power: int) -> int:
+        tokens.sort()
+        left, right = 0, len(tokens) - 1
+        score = 0
+        max_score = 0
 
-        # Initialize two pointers, fast and slow
-        fast = dummy
-        slow = dummy
+        while left <= right:
+            if power >= tokens[left]:
+                power -= tokens[left]
+                score += 1
+                left += 1
+                max_score = max(max_score, score)
+            elif score > 0:
+                power += tokens[right]
+                score -= 1
+                right -= 1
+            else:
+                break
 
-        # Move fast pointer n+1 steps ahead
-        for _ in range(n + 1):
-            fast = fast.next
-
-        # Move fast and slow pointers together until fast reaches the end
-        while fast:
-            fast = fast.next
-            slow = slow.next
-
-        # Remove the nth node from the end
-        slow.next = slow.next.next
-
-        return dummy.next
+        return max_score
