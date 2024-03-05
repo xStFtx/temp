@@ -1,23 +1,19 @@
-from typing import List
-
 class Solution:
-    def bagOfTokensScore(self, tokens: List[int], power: int) -> int:
-        tokens.sort()
-        left, right = 0, len(tokens) - 1
-        score = 0
-        max_score = 0
+    def minimumLength(self, s: str) -> int:
+        # Initialize two pointers
+        left, right = 0, len(s) - 1
 
-        while left <= right:
-            if power >= tokens[left]:
-                power -= tokens[left]
-                score += 1
+        # Move the pointers towards each other
+        while left < right and s[left] == s[right]:
+            char = s[left]
+
+            # Move left pointer to the right until a different character is found
+            while left <= right and s[left] == char:
                 left += 1
-                max_score = max(max_score, score)
-            elif score > 0:
-                power += tokens[right]
-                score -= 1
-                right -= 1
-            else:
-                break
 
-        return max_score
+            # Move right pointer to the left until a different character is found
+            while left <= right and s[right] == char:
+                right -= 1
+
+        # Return the remaining length of the string
+        return max(0, right - left + 1)
