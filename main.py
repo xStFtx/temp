@@ -1,11 +1,14 @@
-from typing import List
-
 class Solution:
-    def intersection(self, nums1: List[int], nums2: List[int]) -> List[int]:
-        # Find the intersection using set operations
-        intersection_set = set(nums1) & set(nums2)
+    def customSortString(self, order: str, s: str) -> str:
+        # Create a dictionary to store the index of each character in the order string
+        order_dict = {char: idx for idx, char in enumerate(order)}
         
-        # Convert the set back to a list
-        intersection_list = list(intersection_set)
+        # Define a custom sorting key function based on the order_dict
+        def custom_key(char):
+            return order_dict.get(char, float('inf'))  # Use float('inf') as default for characters not in order
         
-        return intersection_list
+        # Sort the characters in s based on the custom sorting key
+        sorted_s = sorted(s, key=custom_key)
+        
+        # Join the sorted characters to form the result string
+        return ''.join(sorted_s)
