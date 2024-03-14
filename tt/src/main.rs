@@ -114,12 +114,12 @@ impl NeuralNetwork {
         }
 
         // Update weights and biases with momentum and weight decay
-        for (i, layer) in self.hidden_layers.iter_mut().enumerate() {
+        for i in 0..self.hidden_layers.len() {
             if i == 0 {
-                layer.update_weights(&input, &hidden_errors, self.learning_rate, self.momentum, self.weight_decay);
+                self.hidden_layers[i].update_weights(&input.to_vec(), &hidden_errors, self.learning_rate, self.momentum, self.weight_decay);
             } else {
-                layer.update_weights(
-                    &self.hidden_layers[i - 1].activations,
+                self.hidden_layers[i].update_weights(
+                    &self.hidden_layers[i - 1].activations.clone(),
                     &hidden_errors,
                     self.learning_rate,
                     self.momentum,
@@ -151,24 +151,24 @@ impl NeuralNetwork {
             );
 
             let mut layer_errors = output_errors.last().unwrap().clone();
-            for (i, layer) in self.hidden_layers.iter_mut().rev().enumerate() {
-                hidden_errors[i].extend(layer.backward(&layer_errors).into_iter().map(|e| vec![e; batch_size]));
+            for i in 0..self.hidden_layers.len() {
+                hidden_errors[i].extend(self.hidden_layers[i].backward(&layer_errors).into_iter().map(|e| vec![e; batch_size]));
                 layer_errors = hidden_errors[i].iter().map(|v| v.iter().sum::<f64>() / batch_size as f64).collect();
             }
         }
 
         // Update weights and biases with momentum and weight decay
-        for (i, layer) in self.hidden_layers.iter_mut().enumerate() {
+        for i in 0..self.hidden_layers.len() {
             if i == 0 {
-                layer.update_weights_batch(
-                    &inputs,
+                self.hidden_layers[i].update_weights_batch(
+                    &inputs.to_vec(),
                     &hidden_errors[i],
                     self.learning_rate,
                     self.momentum,
                     self.weight_decay,
                 );
             } else {
-                layer.update_weights_batch(
+                self.hidden_layers[i].update_weights_batch(
                     &self.hidden_layers[i - 1]
                         .activations
                         .chunks(self.hidden_layers[i - 1].size)
@@ -209,11 +209,11 @@ impl NeuralNetwork {
         (inputs, targets)
     }
 
-    fn save_model(&self, filename: &str) {
+    fn save_model(&self, _filename: &str) {
         // Implementation to save model weights and architecture
     }
 
-    fn load_model(&mut self, filename: &str) {
+    fn load_model(&mut self, _filename: &str) {
         // Implementation to load model weights and architecture
     }
 }
@@ -307,16 +307,26 @@ fn relu_derivative(x: f64) -> f64 {
 fn main() {
     // Example usage of the NeuralNetwork
     let input_size = 2;
-    let hidden_layers = vec![(usize::from(3), sigmoid, sigmoid_derivative)];
+    let hidden_layers = vec![
+        (3 as usize, sigmoid as fn(f64) -> f64, sigmoid_derivative as fn(f64) -> f64),
+    ];
     let output_size = 1;
     let learning_rate = 0.1;
     let momentum = 0.9;
     let weight_decay = 0.0001;
 
     // Create a tuple with function types (without calling the functions)
-    let hidden_layer_config = (usize::from(3), sigmoid, sigmoid_derivative);
+    let hidden_layer_config =
+        (3 as usize, sigmoid as fn(f64) -> f64, sigmoid_derivative as fn(f64) -> f64);
 
-    let mut nn = NeuralNetwork::new(input_size, vec![hidden_layer_config], output_size, learning_rate, momentum, weight_decay);
+    let mut nn = NeuralNetwork::new(
+        input_size,
+        vec![hidden_layer_config],
+        output_size,
+        learning_rate,
+        momentum,
+        weight_decay,
+    );
 
     // Load training data from a file
     let (inputs, targets) = NeuralNetwork::load_data("data.csv");
