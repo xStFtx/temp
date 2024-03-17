@@ -20,5 +20,5 @@ class Solution:
         while i < len(intervals):
             result.append(intervals[i])
             i += 1
-        
+        #f dsfds
         return result
