@@ -1,24 +1,16 @@
 class Solution:
-    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
-        result = []
-        i = 0
+    def findMinArrowShots(self, points: List[List[int]]) -> int:
+        if not points:
+            return 0
         
-        # Add intervals that come before the newInterval
-        while i < len(intervals) and intervals[i][1] < newInterval[0]:
-            result.append(intervals[i])
-            i += 1
+        # Sort the balloons by their end point
+        points.sort(key=lambda x: x[1])
         
-        # Merge overlapping intervals with the newInterval
-        while i < len(intervals) and intervals[i][0] <= newInterval[1]:
-            newInterval[0] = min(newInterval[0], intervals[i][0])
-            newInterval[1] = max(newInterval[1], intervals[i][1])
-            i += 1
+        arrows = 1
+        end = points[0][1]  # end point of the first balloon
         
-        result.append(newInterval)
-        
-        # Add remaining intervals
-        while i < len(intervals):
-            result.append(intervals[i])
-            i += 1
-        #f dsfds
-        return result
+        for i in range(1, len(points)):
+            if points[i][0] > end:  # if the next balloon starts after the end point
+                arrows += 1
+                end = points[i][1]  # update the end point
+        return arrows
