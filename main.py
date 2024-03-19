@@ -1,16 +1,18 @@
+from collections import Counter
+
 class Solution:
-    def findMinArrowShots(self, points: List[List[int]]) -> int:
-        if not points:
-            return 0
+    def leastInterval(self, tasks: List[str], n: int) -> int:
+        # Count the frequency of each task
+        task_counts = Counter(tasks)
         
-        # Sort the balloons by their end point
-        points.sort(key=lambda x: x[1])
+        # Get the maximum frequency
+        max_frequency = max(task_counts.values())
         
-        arrows = 1
-        end = points[0][1]  # end point of the first balloon
+        # Count the number of tasks that have the maximum frequency
+        max_frequency_tasks = list(task_counts.values()).count(max_frequency)
         
-        for i in range(1, len(points)):
-            if points[i][0] > end:  # if the next balloon starts after the end point
-                arrows += 1
-                end = points[i][1]  # update the end point
-        return arrows
+        # Calculate the minimum number of intervals required
+        minimum_intervals = (max_frequency - 1) * (n + 1) + max_frequency_tasks
+        
+        # Return the maximum of either the minimum intervals or the length of the tasks array
+        return max(minimum_intervals, len(tasks))
