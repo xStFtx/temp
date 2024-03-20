@@ -1,18 +1,28 @@
-from collections import Counter
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
 
 class Solution:
-    def leastInterval(self, tasks: List[str], n: int) -> int:
-        # Count the frequency of each task
-        task_counts = Counter(tasks)
+    def mergeInBetween(self, list1: ListNode, a: int, b: int, list2: ListNode) -> ListNode:
+        # Find the node before the ath node
+        prev_a = None
+        current = list1
+        for _ in range(a):
+            prev_a = current
+            current = current.next
         
-        # Get the maximum frequency
-        max_frequency = max(task_counts.values())
+        # Find the node after the bth node
+        prev_b = None
+        for _ in range(b+1):
+            prev_b = current
+            current = current.next
         
-        # Count the number of tasks that have the maximum frequency
-        max_frequency_tasks = list(task_counts.values()).count(max_frequency)
+        # Connect the nodes
+        prev_a.next = list2
+        while list2.next:
+            list2 = list2.next
+        list2.next = prev_b
         
-        # Calculate the minimum number of intervals required
-        minimum_intervals = (max_frequency - 1) * (n + 1) + max_frequency_tasks
-        
-        # Return the maximum of either the minimum intervals or the length of the tasks array
-        return max(minimum_intervals, len(tasks))
+        return list1
