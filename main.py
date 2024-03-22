@@ -1,18 +1,34 @@
 # Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
 
 class Solution:
-    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        prev_node = None
-        current_node = head
+    def isPalindrome(self, head: ListNode) -> bool:
+        # Helper function to reverse a linked list
+        def reverseLinkedList(node):
+            prev = None
+            current = node
+            while current:
+                next_node = current.next
+                current.next = prev
+                prev = current
+                current = next_node
+            return prev
         
-        while current_node:
-            next_node = current_node.next
-            current_node.next = prev_node
-            prev_node = current_node
-            current_node = next_node
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
         
-        return prev_node
+        # Reverse the second half of the linked list
+        second_half = reverseLinkedList(slow)
+        
+        # Compare the first and second halves
+        while second_half:
+            if head.val != second_half.val:
+                return False
+            head = head.next
+            second_half = second_half.next
+        return True
