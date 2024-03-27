@@ -1,20 +1,19 @@
 class Solution:
-    def firstMissingPositive(self, nums: List[int]) -> int:
-        n = len(nums)
+    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
+        if k <= 1:
+            return 0
         
-        # Function to swap elements in the array
-        def swap(nums, i, j):
-            nums[i], nums[j] = nums[j], nums[i]
+        count = 0
+        product = 1
+        left = 0
         
-        # Place each number in its correct position
-        for i in range(n):
-            while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:
-                swap(nums, i, nums[i] - 1)
-        
-        # Iterate through the array to find the first missing positive integer
-        for i in range(n):
-            if nums[i] != i + 1:
-                return i + 1
-        
-        # If all positive integers are present, return n + 1
-        return n + 1
+        for right, num in enumerate(nums):
+            product *= num
+            
+            while product >= k:
+                product /= nums[left]
+                left += 1
+                
+            count += right - left + 1
+            
+        return count
