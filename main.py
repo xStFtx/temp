@@ -1,19 +1,16 @@
 class Solution:
-    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
-        if k <= 1:
-            return 0
-        
-        count = 0
-        product = 1
+    def maxSubarrayLength(self, nums: List[int], k: int) -> int:
+        frequency = {}
+        max_length = 0
         left = 0
         
         for right, num in enumerate(nums):
-            product *= num
+            frequency[num] = frequency.get(num, 0) + 1
             
-            while product >= k:
-                product /= nums[left]
+            while max(frequency.values()) > k:
+                frequency[nums[left]] -= 1
                 left += 1
                 
-            count += right - left + 1
-            
-        return count
+            max_length = max(max_length, right - left + 1)
+        
+        return max_length
