@@ -1,18 +1,14 @@
-import heapq
-
 class Solution:
-    def mincostToHireWorkers(self, quality: List[int], wage: List[int], k: int) -> float:
-        workers = sorted([(wage[i] / quality[i], quality[i]) for i in range(len(quality))])
-        heap = [-q for q in workers[:k][1]]
-        heapq.heapify(heap)
-        total_quality = sum([-q for q in heap])
-        min_cost = float('inf')
+    def largestLocal(self, grid: List[List[int]]) -> List[List[int]]:
+        n = len(grid)
+        maxLocal = [[0] * (n - 2) for _ in range(n - 2)]
 
-        for ratio, q in workers:
-            total_quality += q
-            heapq.heappush(heap, -q)
-            if len(heap) > k:
-                total_quality += heapq.heappop(heap)
-            min_cost = min(min_cost, total_quality * ratio)
+        for i in range(n - 2):
+            for j in range(n - 2):
+                max_val = 0
+                for x in range(i, i + 3):
+                    for y in range(j, j + 3):
+                        max_val = max(max_val, grid[x][y])
+                maxLocal[i][j] = max_val
 
-        return min_cost
+        return maxLocal
