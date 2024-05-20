@@ -1,19 +1,14 @@
 class Solution:
-    def maximumValueSum(self, nums, k, edges):
-        # Calculate the initial sum of all node values
-        initial_sum = sum(nums)
+    def subsetXORSum(self, nums: List[int]) -> int:
+        n = len(nums)
+        total_sum = 0
+        subset_count = 1 << n  # 2^n
         
-        # Calculate potential gains
-        potential_gains = [(num ^ k) - num for num in nums]
+        for i in range(subset_count):
+            subset_xor = 0
+            for j in range(n):
+                if i & (1 << j):
+                    subset_xor ^= nums[j]
+            total_sum += subset_xor
         
-        # Sum positive gains
-        max_gain_sum = sum(gain for gain in potential_gains if gain > 0)
-        
-        # The maximum possible sum is the initial sum plus the positive gains
-        return initial_sum + max_gain_sum
-
-# Example usage:
-solution = Solution()
-print(solution.maximumValueSum([1, 2, 1], 3, [[0, 1], [0, 2]]))  # Output: 6
-print(solution.maximumValueSum([2, 3], 7, [[0, 1]]))  # Output: 9
-print(solution.maximumValueSum([7, 7, 7, 7, 7, 7], 3, [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5]]))  # Output: 42
+        return total_sum
