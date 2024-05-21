@@ -1,14 +1,17 @@
 class Solution:
-    def subsetXORSum(self, nums: List[int]) -> int:
-        n = len(nums)
-        total_sum = 0
-        subset_count = 1 << n  # 2^n
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        def backtrack(start, current_subset):
+            # Append a copy of the current subset to the results
+            result.append(current_subset[:])
+            # Iterate over the possible next elements
+            for i in range(start, len(nums)):
+                # Include nums[i] in the current subset
+                current_subset.append(nums[i])
+                # Recurse with the next element
+                backtrack(i + 1, current_subset)
+                # Exclude nums[i] from the current subset
+                current_subset.pop()
         
-        for i in range(subset_count):
-            subset_xor = 0
-            for j in range(n):
-                if i & (1 << j):
-                    subset_xor ^= nums[j]
-            total_sum += subset_xor
-        
-        return total_sum
+        result = []
+        backtrack(0, [])
+        return result
