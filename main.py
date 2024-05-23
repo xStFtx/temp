@@ -1,20 +1,26 @@
 class Solution:
-    def partition(self, s: str) -> List[List[str]]:
-        def is_palindrome(sub: str) -> bool:
-            return sub == sub[::-1]
+    def beautifulSubsets(self, nums, k):
+        from collections import Counter
         
-        def backtrack(start: int, path: List[str]):
-            if start == len(s):
-                result.append(path[:])
-                return
+        def backtrack(index, count_map):
+            if index == len(nums):
+                # If there is at least one element in the subset, it's a valid subset
+                return 1 if count_map else 0
             
-            for end in range(start + 1, len(s) + 1):
-                substring = s[start:end]
-                if is_palindrome(substring):
-                    path.append(substring)
-                    backtrack(end, path)
-                    path.pop()
+            count = 0
+            # Case 1: Exclude the current element
+            count += backtrack(index + 1, count_map)
+            
+            # Case 2: Include the current element, only if it does not violate the beautiful subset condition
+            current_num = nums[index]
+            if count_map[current_num - k] == 0 and count_map[current_num + k] == 0:
+                count_map[current_num] += 1
+                count += backtrack(index + 1, count_map)
+                count_map[current_num] -= 1
+            
+            return count
         
-        result = []
-        backtrack(0, [])
-        return result
+        # Frequency map to keep track of the elements in the current subset
+        count_map = Counter()
+        # Start backtracking from index 0
+        return backtrack(0, count_map)
