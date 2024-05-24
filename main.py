@@ -1,26 +1,37 @@
+from typing import List
+
 class Solution:
-    def beautifulSubsets(self, nums, k):
+    def maxScoreWords(self, words: List[str], letters: List[str], score: List[int]) -> int:
         from collections import Counter
         
-        def backtrack(index, count_map):
-            if index == len(nums):
-                # If there is at least one element in the subset, it's a valid subset
-                return 1 if count_map else 0
-            
-            count = 0
-            # Case 1: Exclude the current element
-            count += backtrack(index + 1, count_map)
-            
-            # Case 2: Include the current element, only if it does not violate the beautiful subset condition
-            current_num = nums[index]
-            if count_map[current_num - k] == 0 and count_map[current_num + k] == 0:
-                count_map[current_num] += 1
-                count += backtrack(index + 1, count_map)
-                count_map[current_num] -= 1
-            
-            return count
+        def word_score(word):
+            return sum(score[ord(c) - ord('a')] for c in word)
         
-        # Frequency map to keep track of the elements in the current subset
-        count_map = Counter()
-        # Start backtracking from index 0
-        return backtrack(0, count_map)
+        def can_form(word, letter_count):
+            word_count = Counter(word)
+            for char, cnt in word_count.items():
+                if letter_count[char] < cnt:
+                    return False
+            return True
+        
+        def backtrack(index, letter_count, current_score):
+            if index == len(words):
+                return current_score
+            
+            # Skip current word
+            max_score = backtrack(index + 1, letter_count, current_score)
+            
+            # Include current word if possible
+            word = words[index]
+            if can_form(word, letter_count):
+                for char in word:
+                    letter_count[char] -= 1
+                max_score = max(max_score, backtrack(index + 1, letter_count, current_score + word_score(word)))
+                for char in word:
+                    letter_count[char] += 1
+            
+            return max_score
+        
+        letter_count = Counter(letters)
+        return backtrack(0, letter_count, 0)
+
