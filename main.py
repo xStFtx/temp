@@ -1,37 +1,27 @@
-from typing import List
-
 class Solution:
-    def maxScoreWords(self, words: List[str], letters: List[str], score: List[int]) -> int:
-        from collections import Counter
+    def wordBreak(self, s: str, wordDict: List[str]) -> List[str]:
+        # Convert the wordDict to a set for O(1) look-ups
+        wordSet = set(wordDict)
+        memo = {}  # Memoization dictionary
         
-        def word_score(word):
-            return sum(score[ord(c) - ord('a')] for c in word)
-        
-        def can_form(word, letter_count):
-            word_count = Counter(word)
-            for char, cnt in word_count.items():
-                if letter_count[char] < cnt:
-                    return False
-            return True
-        
-        def backtrack(index, letter_count, current_score):
-            if index == len(words):
-                return current_score
+        def backtrack(sub_s):
+            if sub_s in memo:
+                return memo[sub_s]
             
-            # Skip current word
-            max_score = backtrack(index + 1, letter_count, current_score)
+            if not sub_s:
+                return []
             
-            # Include current word if possible
-            word = words[index]
-            if can_form(word, letter_count):
-                for char in word:
-                    letter_count[char] -= 1
-                max_score = max(max_score, backtrack(index + 1, letter_count, current_score + word_score(word)))
-                for char in word:
-                    letter_count[char] += 1
+            res = []
+            for end in range(1, len(sub_s) + 1):
+                word = sub_s[:end]
+                if word in wordSet:
+                    if end == len(sub_s):
+                        res.append(word)
+                    else:
+                        for sub_sentence in backtrack(sub_s[end:]):
+                            res.append(word + ' ' + sub_sentence)
             
-            return max_score
+            memo[sub_s] = res
+            return res
         
-        letter_count = Counter(letters)
-        return backtrack(0, letter_count, 0)
-
+        return backtrack(s)
