@@ -1,27 +1,35 @@
+MOD = 10**9 + 7
+
 class Solution:
-    def wordBreak(self, s: str, wordDict: List[str]) -> List[str]:
-        # Convert the wordDict to a set for O(1) look-ups
-        wordSet = set(wordDict)
-        memo = {}  # Memoization dictionary
+    def checkRecord(self, n: int) -> int:
+        if n == 1:
+            return 3  # "P", "L", "A"
         
-        def backtrack(sub_s):
-            if sub_s in memo:
-                return memo[sub_s]
-            
-            if not sub_s:
-                return []
-            
-            res = []
-            for end in range(1, len(sub_s) + 1):
-                word = sub_s[:end]
-                if word in wordSet:
-                    if end == len(sub_s):
-                        res.append(word)
-                    else:
-                        for sub_sentence in backtrack(sub_s[end:]):
-                            res.append(word + ' ' + sub_sentence)
-            
-            memo[sub_s] = res
-            return res
+        # DP table
+        dp = [[[0] * 3 for _ in range(2)] for _ in range(n + 1)]
         
-        return backtrack(s)
+        # Base case
+        dp[0][0][0] = 1
+        
+        for i in range(1, n + 1):
+            for a in range(2):
+                for l in range(3):
+                    # Add 'P'
+                    dp[i][a][0] = (dp[i][a][0] + dp[i-1][a][l]) % MOD
+                    
+                    # Add 'A'
+                    if a > 0:
+                        dp[i][a][0] = (dp[i][a][0] + dp[i-1][a-1][l]) % MOD
+                    
+                    # Add 'L'
+                    if l > 0:
+                        dp[i][a][l] = (dp[i][a][l] + dp[i-1][a][l-1]) % MOD
+        
+        # Sum up all valid states of length n
+        result = 0
+        for a in range(2):
+            for l in range(3):
+                result = (result + dp[n][a][l]) % MOD
+        
+        return result
+
