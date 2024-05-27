@@ -1,35 +1,12 @@
-MOD = 10**9 + 7
-
 class Solution:
-    def checkRecord(self, n: int) -> int:
-        if n == 1:
-            return 3  # "P", "L", "A"
+    def specialArray(self, nums):
+        # Sort the array
+        nums.sort(reverse=True)
         
-        # DP table
-        dp = [[[0] * 3 for _ in range(2)] for _ in range(n + 1)]
+        # Check each possible value of x
+        for x in range(1, len(nums) + 1):
+            # Check if there are exactly x elements greater than or equal to x
+            if nums[x-1] >= x and (x == len(nums) or nums[x] < x):
+                return x
         
-        # Base case
-        dp[0][0][0] = 1
-        
-        for i in range(1, n + 1):
-            for a in range(2):
-                for l in range(3):
-                    # Add 'P'
-                    dp[i][a][0] = (dp[i][a][0] + dp[i-1][a][l]) % MOD
-                    
-                    # Add 'A'
-                    if a > 0:
-                        dp[i][a][0] = (dp[i][a][0] + dp[i-1][a-1][l]) % MOD
-                    
-                    # Add 'L'
-                    if l > 0:
-                        dp[i][a][l] = (dp[i][a][l] + dp[i-1][a][l-1]) % MOD
-        
-        # Sum up all valid states of length n
-        result = 0
-        for a in range(2):
-            for l in range(3):
-                result = (result + dp[n][a][l]) % MOD
-        
-        return result
-
+        return -1
