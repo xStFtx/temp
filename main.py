@@ -1,12 +1,16 @@
 class Solution:
-    def specialArray(self, nums):
-        # Sort the array
-        nums.sort(reverse=True)
+    def equalSubstring(self, s: str, t: str, maxCost: int) -> int:
+        start = 0
+        current_cost = 0
+        max_length = 0
         
-        # Check each possible value of x
-        for x in range(1, len(nums) + 1):
-            # Check if there are exactly x elements greater than or equal to x
-            if nums[x-1] >= x and (x == len(nums) or nums[x] < x):
-                return x
+        for end in range(len(s)):
+            current_cost += abs(ord(s[end]) - ord(t[end]))
+            
+            while current_cost > maxCost:
+                current_cost -= abs(ord(s[start]) - ord(t[start]))
+                start += 1
+            
+            max_length = max(max_length, end - start + 1)
         
-        return -1
+        return max_length
