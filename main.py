@@ -1,17 +1,16 @@
 class Solution:
-    def numSteps(self, s: str) -> int:
-        # Convert the binary string to an integer
-        num = int(s, 2)
-        steps = 0
+    def countTriplets(self, arr):
+        n = len(arr)
+        # Compute prefix_xor array
+        prefix_xor = [0] * (n + 1)
+        for i in range(n):
+            prefix_xor[i + 1] = prefix_xor[i] ^ arr[i]
+
+        count = 0
+        # Check for each combination of i and k
+        for i in range(n):
+            for k in range(i + 1, n):
+                if prefix_xor[i] == prefix_xor[k + 1]:
+                    count += (k - i)
         
-        # Perform operations until the number is reduced to 1
-        while num != 1:
-            if num % 2 == 0:
-                # If the number is even, divide by 2
-                num //= 2
-            else:
-                # If the number is odd, add 1
-                num += 1
-            steps += 1
-        
-        return steps
+        return count
