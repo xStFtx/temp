@@ -1,16 +1,22 @@
 class Solution:
-    def countTriplets(self, arr):
-        n = len(arr)
-        # Compute prefix_xor array
-        prefix_xor = [0] * (n + 1)
-        for i in range(n):
-            prefix_xor[i + 1] = prefix_xor[i] ^ arr[i]
-
-        count = 0
-        # Check for each combination of i and k
-        for i in range(n):
-            for k in range(i + 1, n):
-                if prefix_xor[i] == prefix_xor[k + 1]:
-                    count += (k - i)
+    def singleNumber(self, nums: List[int]) -> List[int]:
+        # Step 1: XOR all elements to get the XOR of the two unique numbers
+        xor_all = 0
+        for num in nums:
+            xor_all ^= num
         
-        return count
+        # Step 2: Find a bit that is set in xor_all (we can use the rightmost set bit)
+        differentiating_bit = xor_all & -xor_all
+        
+        # Step 3: Partition the array into two groups and XOR within each group
+        num1 = 0
+        num2 = 0
+        for num in nums:
+            if num & differentiating_bit:
+                num1 ^= num
+            else:
+                num2 ^= num
+        
+        # Step 4: The two unique numbers are num1 and num2
+        return [num1, num2]
+
