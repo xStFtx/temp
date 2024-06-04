@@ -1,17 +1,26 @@
 class Solution:
-    def appendCharacters(self, s: str, t: str) -> int:
-        # Initialize pointers for both strings
-        i, j = 0, 0
-        # Length of the strings
-        n, m = len(s), len(t)
+    def longestPalindrome(self, s: str) -> int:
+        # Count the frequency of each character
+        char_count = {}
+        for char in s:
+            char_count[char] = char_count.get(char, 0) + 1
         
-        # Iterate through both strings
-        while i < n and j < m:
-            # If characters match, move the pointer on t
-            if s[i] == t[j]:
-                j += 1
-            # Always move the pointer on s
-            i += 1
+        # Initialize the length of the longest palindrome
+        longest_palindrome_length = 0
         
-        # The number of characters left in t that weren't matched in s
-        return m - j
+        # Flag to check if there is any character with odd frequency
+        odd_exists = False
+        
+        # Iterate through the character counts
+        for count in char_count.values():
+            if count % 2 == 0:
+                longest_palindrome_length += count
+            else:
+                longest_palindrome_length += count - 1
+                odd_exists = True
+        
+        # If there was any character with odd frequency, add one to the length
+        if odd_exists:
+            longest_palindrome_length += 1
+        
+        return longest_palindrome_length
