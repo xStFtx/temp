@@ -1,26 +1,25 @@
+from collections import Counter
+from typing import List
+
 class Solution:
-    def longestPalindrome(self, s: str) -> int:
-        # Count the frequency of each character
-        char_count = {}
-        for char in s:
-            char_count[char] = char_count.get(char, 0) + 1
+    def commonChars(self, words: List[str]) -> List[str]:
+        # Initialize the counter with the first word
+        common_count = Counter(words[0])
         
-        # Initialize the length of the longest palindrome
-        longest_palindrome_length = 0
+        # Iterate through the rest of the words
+        for word in words[1:]:
+            # Create a counter for the current word
+            current_count = Counter(word)
+            # Update the common count with the minimum frequency of each character
+            for char in common_count:
+                if char in current_count:
+                    common_count[char] = min(common_count[char], current_count[char])
+                else:
+                    common_count[char] = 0
         
-        # Flag to check if there is any character with odd frequency
-        odd_exists = False
+        # Collect the results
+        result = []
+        for char, count in common_count.items():
+            result.extend([char] * count)
         
-        # Iterate through the character counts
-        for count in char_count.values():
-            if count % 2 == 0:
-                longest_palindrome_length += count
-            else:
-                longest_palindrome_length += count - 1
-                odd_exists = True
-        
-        # If there was any character with odd frequency, add one to the length
-        if odd_exists:
-            longest_palindrome_length += 1
-        
-        return longest_palindrome_length
+        return result
