@@ -1,25 +1,24 @@
 from collections import Counter
-from typing import List
+import heapq
 
 class Solution:
-    def commonChars(self, words: List[str]) -> List[str]:
-        # Initialize the counter with the first word
-        common_count = Counter(words[0])
+    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:
+        if len(hand) % groupSize != 0:
+            return False
+
+        count = Counter(hand)
+        min_heap = list(count.keys())
+        heapq.heapify(min_heap)
+
+        while min_heap:
+            first = min_heap[0]
+            for i in range(first, first + groupSize):
+                if count[i] == 0:
+                    return False
+                count[i] -= 1
+                if count[i] == 0:
+                    if i != min_heap[0]:
+                        return False
+                    heapq.heappop(min_heap)
         
-        # Iterate through the rest of the words
-        for word in words[1:]:
-            # Create a counter for the current word
-            current_count = Counter(word)
-            # Update the common count with the minimum frequency of each character
-            for char in common_count:
-                if char in current_count:
-                    common_count[char] = min(common_count[char], current_count[char])
-                else:
-                    common_count[char] = 0
-        
-        # Collect the results
-        result = []
-        for char, count in common_count.items():
-            result.extend([char] * count)
-        
-        return result
+        return True
