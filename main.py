@@ -1,41 +1,18 @@
-class TrieNode:
-    def __init__(self):
-        self.children = {}
-        self.is_end_of_word = False
-
 class Solution:
-    def __init__(self):
-        self.root = TrieNode()
-    
-    def insert(self, word):
-        node = self.root
-        for char in word:
-            if char not in node.children:
-                node.children[char] = TrieNode()
-            node = node.children[char]
-        node.is_end_of_word = True
-    
-    def search_root(self, word):
-        node = self.root
-        prefix = ""
-        for char in word:
-            if char not in node.children:
-                break
-            node = node.children[char]
-            prefix += char
-            if node.is_end_of_word:
-                return prefix
-        return word
-    
-    def replaceWords(self, dictionary, sentence):
-        # Build the Trie
-        for root in dictionary:
-            self.insert(root)
+    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+        # Dictionary to store cumulative sum % k and its index
+        mod_sum_index = {0: -1}
+        cum_sum = 0
         
-        # Replace words in the sentence
-        words = sentence.split()
-        replaced_words = [self.search_root(word) for word in words]
+        for i, num in enumerate(nums):
+            cum_sum += num
+            if k != 0:
+                cum_sum %= k
+            
+            if cum_sum in mod_sum_index:
+                if i - mod_sum_index[cum_sum] >= 2:
+                    return True
+            else:
+                mod_sum_index[cum_sum] = i
         
-        # Reconstruct the sentence
-        return ' '.join(replaced_words)
-
+        return False
