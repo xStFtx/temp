@@ -1,18 +1,12 @@
 class Solution:
-    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
-        # Dictionary to store cumulative sum % k and its index
-        mod_sum_index = {0: -1}
-        cum_sum = 0
-        
-        for i, num in enumerate(nums):
-            cum_sum += num
-            if k != 0:
-                cum_sum %= k
-            
-            if cum_sum in mod_sum_index:
-                if i - mod_sum_index[cum_sum] >= 2:
-                    return True
-            else:
-                mod_sum_index[cum_sum] = i
-        
-        return False
+    def subarraysDivByK(self, nums: List[int], k: int) -> int:
+        remainder_counts = {0: 1}  # Base case: empty subarray (sum 0) has remainder 0
+        cumsum = 0
+        result = 0
+
+        for num in nums:
+            cumsum = (cumsum + num) % k  # Calculate cumulative sum modulo k
+            result += remainder_counts.get(cumsum, 0)  # Add count of previous subarrays with same remainder
+            remainder_counts[cumsum] = remainder_counts.get(cumsum, 0) + 1  # Update count for current remainder
+
+        return result
