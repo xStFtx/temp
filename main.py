@@ -1,9 +1,23 @@
+from collections import Counter
+
 class Solution:
-    def heightChecker(self, heights: List[int]) -> int:
-        # Create the expected array by sorting the heights array
-        expected = sorted(heights)
+    def relativeSortArray(self, arr1, arr2):
+        # Step 1: Count the occurrences of each element in arr1
+        count = Counter(arr1)
         
-        # Count the number of indices where heights and expected do not match
-        mismatch_count = sum(1 for i in range(len(heights)) if heights[i] != expected[i])
+        # Step 2: Arrange elements according to arr2
+        result = []
+        for num in arr2:
+            if num in count:
+                result.extend([num] * count[num])
+                del count[num]
         
-        return mismatch_count
+        # Step 3: Append the remaining elements sorted in ascending order
+        remaining = []
+        for num in count:
+            remaining.extend([num] * count[num])
+        
+        result.extend(sorted(remaining))
+        
+        return result
+
