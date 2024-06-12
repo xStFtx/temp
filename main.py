@@ -1,23 +1,14 @@
-from collections import Counter
-
 class Solution:
-    def relativeSortArray(self, arr1, arr2):
-        # Step 1: Count the occurrences of each element in arr1
-        count = Counter(arr1)
-        
-        # Step 2: Arrange elements according to arr2
-        result = []
-        for num in arr2:
-            if num in count:
-                result.extend([num] * count[num])
-                del count[num]
-        
-        # Step 3: Append the remaining elements sorted in ascending order
-        remaining = []
-        for num in count:
-            remaining.extend([num] * count[num])
-        
-        result.extend(sorted(remaining))
-        
-        return result
+    def sortColors(self, nums: List[int]) -> None:
+        low, mid, high = 0, 0, len(nums) - 1
 
+        while mid <= high:
+            if nums[mid] == 0:
+                nums[low], nums[mid] = nums[mid], nums[low]
+                low += 1
+                mid += 1
+            elif nums[mid] == 1:
+                mid += 1
+            else:  # nums[mid] == 2
+                nums[mid], nums[high] = nums[high], nums[mid]
+                high -= 1
