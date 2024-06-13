@@ -1,14 +1,10 @@
 class Solution:
-    def sortColors(self, nums: List[int]) -> None:
-        low, mid, high = 0, 0, len(nums) - 1
+    def minMovesToSeat(self, seats: List[int], students: List[int]) -> int:
+        seats.sort()
+        students.sort()
 
-        while mid <= high:
-            if nums[mid] == 0:
-                nums[low], nums[mid] = nums[mid], nums[low]
-                low += 1
-                mid += 1
-            elif nums[mid] == 1:
-                mid += 1
-            else:  # nums[mid] == 2
-                nums[mid], nums[high] = nums[high], nums[mid]
-                high -= 1
+        total_moves = 0
+        for i in range(len(seats)):
+            total_moves += abs(seats[i] - students[i])
+        
+        return total_moves
