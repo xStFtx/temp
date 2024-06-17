@@ -1,17 +1,18 @@
-from typing import List
-
 class Solution:
-    def minPatches(self, nums: List[int], n: int) -> int:
-        patches = 0
-        i = 0
-        miss = 1
+    def judgeSquareSum(self, c: int) -> bool:
+        if c < 0:
+            return False
+
+        a = 0
+        b = int(c ** 0.5)
         
-        while miss <= n:
-            if i < nums.length and nums[i] <= miss:
-                miss += nums[i]
-                i += 1
+        while a <= b:
+            current_sum = a * a + b * b
+            if current_sum == c:
+                return True
+            elif current_sum < c:
+                a += 1
             else:
-                miss += miss
-                patches += 1
-                
-        return patches
+                b -= 1
+        
+        return False
