@@ -1,18 +1,19 @@
-class Solution:
-    def judgeSquareSum(self, c: int) -> bool:
-        if c < 0:
-            return False
+from typing import List
 
-        a = 0
-        b = int(c ** 0.5)
+class Solution:
+    def maxProfitAssignment(self, difficulty: List[int], profit: List[int], worker: List[int]) -> int:
+        jobs = sorted(zip(difficulty, profit))
+        worker.sort()
         
-        while a <= b:
-            current_sum = a * a + b * b
-            if current_sum == c:
-                return True
-            elif current_sum < c:
-                a += 1
-            else:
-                b -= 1
+        max_profit = 0
+        max_profit_at_current_difficulty = 0
+        job_index = 0
+        n = len(jobs)
         
-        return False
+        for ability in worker:
+            while job_index < n and jobs[job_index][0] <= ability:
+                max_profit_at_current_difficulty = max(max_profit_at_current_difficulty, jobs[job_index][1])
+                job_index += 1
+            max_profit += max_profit_at_current_difficulty
+        
+        return max_profit
