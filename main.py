@@ -1,29 +1,29 @@
 class Solution:
-    def minDays(self, bloomDay, m, k):
-        if m * k > len(bloomDay):
-            return -1
+    def maxDistance(self, position, m):
+        # Sort the positions to use binary search effectively
+        position.sort()
 
-        def canMakeBouquets(days):
-            bouquets = 0
-            flowers = 0
-            for bloom in bloomDay:
-                if bloom <= days:
-                    flowers += 1
-                    if flowers == k:
-                        bouquets += 1
-                        flowers = 0
-                else:
-                    flowers = 0
-                if bouquets >= m:
-                    return True
+        def canPlaceBalls(min_force):
+            # Place the first ball at the first position
+            count = 1
+            last_position = position[0]
+
+            # Try to place the remaining balls
+            for i in range(1, len(position)):
+                if position[i] - last_position >= min_force:
+                    count += 1
+                    last_position = position[i]
+                    if count == m:
+                        return True
             return False
 
-        left, right = min(bloomDay), max(bloomDay)
+        # Binary search for the answer
+        left, right = 1, position[-1] - position[0]
         while left < right:
-            mid = (left + right) // 2
-            if canMakeBouquets(mid):
-                right = mid
+            mid = (left + right + 1) // 2
+            if canPlaceBalls(mid):
+                left = mid
             else:
-                left = mid + 1
+                right = mid - 1
 
         return left
