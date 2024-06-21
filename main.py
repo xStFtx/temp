@@ -1,29 +1,25 @@
+from typing import List
+
 class Solution:
-    def maxDistance(self, position, m):
-        # Sort the positions to use binary search effectively
-        position.sort()
+    def maxSatisfied(self, customers: List[int], grumpy: List[int], minutes: int) -> int:
+        n = len(customers)
+        
+        # Calculate the initial satisfied customers without using the technique
+        satisfied_customers = sum(customers[i] for i in range(n) if grumpy[i] == 0)
+        
+        # Calculate the potential increase in satisfied customers by applying the technique
+        # Initialize the extra satisfied customers in the first window of 'minutes'
+        extra_satisfied = sum(customers[i] for i in range(minutes) if grumpy[i] == 1)
+        max_extra_satisfied = extra_satisfied
+        
+        # Sliding window to calculate the extra satisfied customers for each possible window
+        for i in range(minutes, n):
+            if grumpy[i] == 1:
+                extra_satisfied += customers[i]
+            if grumpy[i - minutes] == 1:
+                extra_satisfied -= customers[i - minutes]
+            max_extra_satisfied = max(max_extra_satisfied, extra_satisfied)
+        
+        # Total satisfied customers is the initially satisfied plus the maximum extra satisfied
+        return satisfied_customers + max_extra_satisfied
 
-        def canPlaceBalls(min_force):
-            # Place the first ball at the first position
-            count = 1
-            last_position = position[0]
-
-            # Try to place the remaining balls
-            for i in range(1, len(position)):
-                if position[i] - last_position >= min_force:
-                    count += 1
-                    last_position = position[i]
-                    if count == m:
-                        return True
-            return False
-
-        # Binary search for the answer
-        left, right = 1, position[-1] - position[0]
-        while left < right:
-            mid = (left + right + 1) // 2
-            if canPlaceBalls(mid):
-                left = mid
-            else:
-                right = mid - 1
-
-        return left
