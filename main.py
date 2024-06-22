@@ -1,25 +1,22 @@
 from typing import List
+from collections import defaultdict
 
 class Solution:
-    def maxSatisfied(self, customers: List[int], grumpy: List[int], minutes: int) -> int:
-        n = len(customers)
+    def numberOfSubarrays(self, nums: List[int], k: int) -> int:
+        # Convert nums array to a binary array indicating odd (1) and even (0) numbers
+        odd_indicator = [1 if num % 2 != 0 else 0 for num in nums]
         
-        # Calculate the initial satisfied customers without using the technique
-        satisfied_customers = sum(customers[i] for i in range(n) if grumpy[i] == 0)
+        prefix_sum = 0
+        prefix_counts = defaultdict(int)
+        prefix_counts[0] = 1  # To account for subarrays starting from index 0
+        result = 0
         
-        # Calculate the potential increase in satisfied customers by applying the technique
-        # Initialize the extra satisfied customers in the first window of 'minutes'
-        extra_satisfied = sum(customers[i] for i in range(minutes) if grumpy[i] == 1)
-        max_extra_satisfied = extra_satisfied
+        for odd in odd_indicator:
+            prefix_sum += odd
+            # If there is a previous prefix sum that equals to prefix_sum - k, add its count to result
+            if prefix_sum - k in prefix_counts:
+                result += prefix_counts[prefix_sum - k]
+            # Increment the count of the current prefix sum in the hashmap
+            prefix_counts[prefix_sum] += 1
         
-        # Sliding window to calculate the extra satisfied customers for each possible window
-        for i in range(minutes, n):
-            if grumpy[i] == 1:
-                extra_satisfied += customers[i]
-            if grumpy[i - minutes] == 1:
-                extra_satisfied -= customers[i - minutes]
-            max_extra_satisfied = max(max_extra_satisfied, extra_satisfied)
-        
-        # Total satisfied customers is the initially satisfied plus the maximum extra satisfied
-        return satisfied_customers + max_extra_satisfied
-
+        return result
