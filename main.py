@@ -1,33 +1,23 @@
 from collections import deque
 
 class Solution:
-    def longestSubarray(self, nums: list[int], limit: int) -> int:
-        max_deque = deque()
-        min_deque = deque()
-        left = 0
-        max_len = 0
+    def minKBitFlips(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        flip_count = 0
+        queue = deque()  # to track the flip operations
         
-        for right in range(len(nums)):
-            # Maintain max_deque for the maximum element in the current window
-            while max_deque and nums[max_deque[-1]] <= nums[right]:
-                max_deque.pop()
-            max_deque.append(right)
+        for i in range(n):
+            # Remove indices from the queue that are out of the window of size k
+            if queue and queue[0] + k <= i:
+                queue.popleft()
             
-            # Maintain min_deque for the minimum element in the current window
-            while min_deque and nums[min_deque[-1]] >= nums[right]:
-                min_deque.pop()
-            min_deque.append(right)
-            
-            # Check if the current window is valid
-            while nums[max_deque[0]] - nums[min_deque[0]] > limit:
-                # Move left pointer to make the window valid again
-                left += 1
-                if max_deque[0] < left:
-                    max_deque.popleft()
-                if min_deque[0] < left:
-                    min_deque.popleft()
-            
-            # Update the maximum length of the valid subarray
-            max_len = max(max_len, right - left + 1)
+            # If the current element is 0 and the number of flips affecting it is even, we need to flip
+            if len(queue) % 2 == nums[i]:
+                # If we can't flip a k-length subarray from index i, return -1
+                if i + k > n:
+                    return -1
+                # Perform a flip, add the starting index of the flip to the queue
+                queue.append(i)
+                flip_count += 1
         
-        return max_len
+        return flip_count
