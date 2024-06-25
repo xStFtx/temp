@@ -1,23 +1,24 @@
-from collections import deque
+# Definition for a binary tree node.
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 class Solution:
-    def minKBitFlips(self, nums: List[int], k: int) -> int:
-        n = len(nums)
-        flip_count = 0
-        queue = deque()  # to track the flip operations
+    def bstToGst(self, root: TreeNode) -> TreeNode:
+        self.total = 0  # to keep track of the running sum
         
-        for i in range(n):
-            # Remove indices from the queue that are out of the window of size k
-            if queue and queue[0] + k <= i:
-                queue.popleft()
-            
-            # If the current element is 0 and the number of flips affecting it is even, we need to flip
-            if len(queue) % 2 == nums[i]:
-                # If we can't flip a k-length subarray from index i, return -1
-                if i + k > n:
-                    return -1
-                # Perform a flip, add the starting index of the flip to the queue
-                queue.append(i)
-                flip_count += 1
+        def reverse_inorder(node: TreeNode):
+            if not node:
+                return
+            # Traverse the right subtree first
+            reverse_inorder(node.right)
+            # Update the node's value with the running sum
+            self.total += node.val
+            node.val = self.total
+            # Traverse the left subtree
+            reverse_inorder(node.left)
         
-        return flip_count
+        reverse_inorder(root)
+        return root
