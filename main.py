@@ -22,3 +22,22 @@ class Solution:
         
         reverse_inorder(root)
         return root
+
+# Helper function to print the tree in level order for visualization
+def print_tree(node):
+    if not node:
+        return []
+    from collections import deque
+    queue = deque([node])
+    result = []
+    while queue:
+        current = queue.popleft()
+        if current:
+            result.append(current.val)
+            queue.append(current.left)
+            queue.append(current.right)
+        else:
+            result.append(None)
+    while result and result[-1] is None:
+        result.pop()
+    return result
