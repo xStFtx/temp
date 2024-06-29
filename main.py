@@ -1,26 +1,38 @@
 from typing import List
-from collections import defaultdict
+from collections import defaultdict, deque
 
 class Solution:
-    def maximumImportance(self, n: int, roads: List[List[int]]) -> int:
-        # Step 1: Count the degree of each city
-        degree = [0] * n
-        for a, b in roads:
-            degree[a] += 1
-            degree[b] += 1
-        
-        # Step 2: Sort cities by their degree
-        city_degree = sorted(range(n), key=lambda x: degree[x], reverse=True)
-        
-        # Step 3: Assign the values from n to 1 based on sorted degrees
-        value_assignment = [0] * n
-        for i, city in enumerate(city_degree):
-            value_assignment[city] = n - i
-        
-        # Step 4: Calculate the total importance of all roads
-        total_importance = 0
-        for a, b in roads:
-            total_importance += value_assignment[a] + value_assignment[b]
-        
-        return total_importance
+    def getAncestors(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        # Step 1: Create the graph and compute in-degrees
+        graph = defaultdict(list)
+        in_degree = [0] * n
+        for u, v in edges:
+            graph[u].append(v)
+            in_degree[v] += 1
 
+        # Step 2: Perform topological sort using Kahn's algorithm
+        topo_order = []
+        queue = deque([i for i in range(n) if in_degree[i] == 0])
+        
+        while queue:
+            node = queue.popleft()
+            topo_order.append(node)
+            for neighbor in graph[node]:
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    queue.append(neighbor)
+        
+        # Step 3: Collect ancestors using the topological order
+        ancestors = [set() for _ in range(n)]
+        
+        for node in topo_order:
+            for neighbor in graph[node]:
+                # Add current node to the ancestor list of the neighbor
+                ancestors[neighbor].add(node)
+                # Add all ancestors of the current node to the ancestor list of the neighbor
+                ancestors[neighbor].update(ancestors[node])
+        
+        # Convert sets to sorted lists
+        result = [sorted(list(anc)) for anc in ancestors]
+        
+        return result
