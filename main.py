@@ -1,38 +1,62 @@
 from typing import List
-from collections import defaultdict, deque
+
+class UnionFind:
+    def __init__(self, size):
+        self.parent = list(range(size))
+        self.rank = [1] * size
+    
+    def find(self, u):
+        if self.parent[u] != u:
+            self.parent[u] = self.find(self.parent[u])
+        return self.parent[u]
+    
+    def union(self, u, v):
+        root_u = self.find(u)
+        root_v = self.find(v)
+        
+        if root_u != root_v:
+            if self.rank[root_u] > self.rank[root_v]:
+                self.parent[root_v] = root_u
+            elif self.rank[root_u] < self.rank[root_v]:
+                self.parent[root_u] = root_v
+            else:
+                self.parent[root_v] = root_u
+                self.rank[root_u] += 1
+            return True
+        return False
 
 class Solution:
-    def getAncestors(self, n: int, edges: List[List[int]]) -> List[List[int]]:
-        # Step 1: Create the graph and compute in-degrees
-        graph = defaultdict(list)
-        in_degree = [0] * n
-        for u, v in edges:
-            graph[u].append(v)
-            in_degree[v] += 1
-
-        # Step 2: Perform topological sort using Kahn's algorithm
-        topo_order = []
-        queue = deque([i for i in range(n) if in_degree[i] == 0])
+    def maxNumEdgesToRemove(self, n: int, edges: List[List[int]]) -> int:
+        # Create two separate Union-Find structures for Alice and Bob
+        uf_alice = UnionFind(n + 1)
+        uf_bob = UnionFind(n + 1)
         
-        while queue:
-            node = queue.popleft()
-            topo_order.append(node)
-            for neighbor in graph[node]:
-                in_degree[neighbor] -= 1
-                if in_degree[neighbor] == 0:
-                    queue.append(neighbor)
+        edges_used = 0
         
-        # Step 3: Collect ancestors using the topological order
-        ancestors = [set() for _ in range(n)]
+        # Step 1: Add all type 3 edges (shared by both Alice and Bob)
+        for type_, u, v in edges:
+            if type_ == 3:
+                if uf_alice.union(u, v):
+                    uf_bob.union(u, v)
+                    edges_used += 1
         
-        for node in topo_order:
-            for neighbor in graph[node]:
-                # Add current node to the ancestor list of the neighbor
-                ancestors[neighbor].add(node)
-                # Add all ancestors of the current node to the ancestor list of the neighbor
-                ancestors[neighbor].update(ancestors[node])
+        # Step 2: Add all type 1 edges (Alice only)
+        for type_, u, v in edges:
+            if type_ == 1:
+                if uf_alice.union(u, v):
+                    edges_used += 1
         
-        # Convert sets to sorted lists
-        result = [sorted(list(anc)) for anc in ancestors]
+        # Step 3: Add all type 2 edges (Bob only)
+        for type_, u, v in edges:
+            if type_ == 2:
+                if uf_bob.union(u, v):
+                    edges_used += 1
         
-        return result
+        # Check if both Alice and Bob can fully traverse the graph
+        # They should be able to reach n nodes (considering 1-based indexing)
+        if len(set(uf_alice.find(i) for i in range(1, n + 1))) != 1 or \
+           len(set(uf_bob.find(i) for i in range(1, n + 1))) != 1:
+            return -1
+        
+        # The maximum number of edges we can remove
+        return len(edges) - edges_used
