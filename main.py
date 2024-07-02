@@ -1,15 +1,20 @@
 from typing import List
+from collections import Counter
 
 class Solution:
-    def threeConsecutiveOdds(self, arr: List[int]) -> bool:
-        consecutive_odds = 0  # Counter for consecutive odd numbers
+    def intersect(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        # Step 1: Count the frequency of elements in both arrays
+        count1 = Counter(nums1)
+        count2 = Counter(nums2)
         
-        for num in arr:
-            if num % 2 == 1:
-                consecutive_odds += 1
-                if consecutive_odds == 3:
-                    return True
-            else:
-                consecutive_odds = 0
+        # Step 2: Find the intersection
+        intersection = []
+        for num in count1:
+            if num in count2:
+                # Step 3: Determine the minimum count for the common element
+                min_count = min(count1[num], count2[num])
+                # Add the element min_count times to the intersection list
+                intersection.extend([num] * min_count)
         
-        return False
+        return intersection
+
