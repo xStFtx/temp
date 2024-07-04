@@ -1,16 +1,31 @@
-from typing import List
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
 
 class Solution:
-    def minDifference(self, nums: List[int]) -> int:
-        if len(nums) <= 4:
-            return 0
+    def mergeNodes(self, head: ListNode) -> ListNode:
+        # Initialize a dummy node to help with the new list
+        dummy = ListNode(0)
+        current_new_list = dummy
         
-        nums.sort()
+        current = head.next  # Skip the first zero
+        current_sum = 0
         
-        # Compute the minimum difference after at most three moves
-        return min(
-            nums[-1] - nums[3],  # Remove the first three smallest elements
-            nums[-2] - nums[2],  # Remove the first two smallest and the last largest
-            nums[-3] - nums[1],  # Remove the first smallest and the last two largest
-            nums[-4] - nums[0]   # Remove the last three largest elements
-        )
+        while current:
+            if current.val == 0:
+                # We encountered a zero, means we end the current segment
+                if current_sum > 0:
+                    # Create a new node with the accumulated sum and reset sum
+                    current_new_list.next = ListNode(current_sum)
+                    current_new_list = current_new_list.next
+                    current_sum = 0
+            else:
+                # Accumulate the values between zeros
+                current_sum += current.val
+            
+            current = current.next
+        
+        return dummy.next
+
