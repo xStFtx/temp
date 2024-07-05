@@ -1,31 +1,36 @@
-# Definition for singly-linked list.
+# Definition for singly-lnked list.
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
 
 class Solution:
-    def mergeNodes(self, head: ListNode) -> ListNode:
-        # Initialize a dummy node to help with the new list
-        dummy = ListNode(0)
-        current_new_list = dummy
+    def nodesBetweenCriticalPoints(self, head: ListNode) -> List[int]:
+        if not head or not head.next or not head.next.next:
+            return [-1, -1]
         
-        current = head.next  # Skip the first zero
-        current_sum = 0
+        critical_points = []
+        index = 1
+        prev, curr, next = head, head.next, head.next.next
         
-        while current:
-            if current.val == 0:
-                # We encountered a zero, means we end the current segment
-                if current_sum > 0:
-                    # Create a new node with the accumulated sum and reset sum
-                    current_new_list.next = ListNode(current_sum)
-                    current_new_list = current_new_list.next
-                    current_sum = 0
-            else:
-                # Accumulate the values between zeros
-                current_sum += current.val
+        while next:
+            if (curr.val > prev.val and curr.val > next.val) or (curr.val < prev.val and curr.val < next.val):
+                critical_points.append(index)
             
-            current = current.next
+            prev = curr
+            curr = next
+            next = next.next
+            index += 1
         
-        return dummy.next
+        if len(critical_points) < 2:
+            return [-1, -1]
+        
+        min_distance = float('inf')
+        max_distance = critical_points[-1] - critical_points[0]
+        
+        for i in range(1, len(critical_points)):
+            min_distance = min(min_distance, critical_points[i] - critical_points[i - 1])
+        
+        return [min_distance, max_distance]
+
 
