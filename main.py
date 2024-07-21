@@ -1,36 +1,40 @@
-# Definition for singly-lnked list.
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
+from typing import List
+from collections import defaultdict
 
 class Solution:
-    def nodesBetweenCriticalPoints(self, head: ListNode) -> List[int]:
-        if not head or not head.next or not head.next.next:
-            return [-1, -1]
-        
-        critical_points = []
-        index = 1
-        prev, curr, next = head, head.next, head.next.next
-        
-        while next:
-            if (curr.val > prev.val and curr.val > next.val) or (curr.val < prev.val and curr.val < next.val):
-                critical_points.append(index)
+    def buildMatrix(self, k: int, rowConditions: List[List[int]], colConditions: List[List[int]]) -> List[List[int]]:
+        def topological_sort(conditions):
+            graph = defaultdict(list)
+            in_degree = defaultdict(int)
             
-            prev = curr
-            curr = next
-            next = next.next
-            index += 1
-        
-        if len(critical_points) < 2:
-            return [-1, -1]
-        
-        min_distance = float('inf')
-        max_distance = critical_points[-1] - critical_points[0]
-        
-        for i in range(1, len(critical_points)):
-            min_distance = min(min_distance, critical_points[i] - critical_points[i - 1])
-        
-        return [min_distance, max_distance]
+            for above, below in conditions:
+                graph[above].append(below)
+                in_degree[below] += 1
+            
+            queue = [i for i in range(1, k + 1) if in_degree[i] == 0]
+            result = []
+            
+            while queue:
+                node = queue.pop(0)
+                result.append(node)
+                
+                for neighbor in graph[node]:
+                    in_degree[neighbor] -= 1
+                    if in_degree[neighbor] == 0:
+                        queue.append(neighbor)
+            
+            return result if len(result) == k else []
 
-
+        row_order = topological_sort(rowConditions)
+        col_order = topological_sort(colConditions)
+        
+        if not row_order or not col_order:
+            return []
+        
+        position = {num: (row_order.index(num), col_order.index(num)) for num in range(1, k + 1)}
+        
+        matrix = [[0] * k for _ in range(k)]
+        for num, (i, j) in position.items():
+            matrix[i][j] = num
+        
+        return matrix
