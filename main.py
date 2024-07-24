@@ -1,15 +1,19 @@
-from collections import Counter
-
 class Solution:
-    def frequencySort(self, nums: List[int]) -> List[int]:
-        # Count the frequency of each number
-        freq = Counter(nums)
+    def sortJumbled(self, mapping: List[int], nums: List[int]) -> List[int]:
+        def get_mapped_value(num: int) -> int:
+            if num == 0:
+                return mapping[0]
+            
+            mapped = 0
+            multiplier = 1
+            while num > 0:
+                digit = num % 10
+                mapped += mapping[digit] * multiplier
+                multiplier *= 10
+                num //= 10
+            return mapped
         
-        # Create a list of tuples (num, frequency)
-        num_freq = [(num, freq[num]) for num in nums]
+        indexed_nums = [(i, num, get_mapped_value(num)) for i, num in enumerate(nums)]
+        indexed_nums.sort(key=lambda x: (x[2], x[0]))
         
-        # Sort the list based on frequency (ascending) and value (descending)
-        num_freq.sort(key=lambda x: (x[1], -x[0]))
-        
-        # Return the sorted list of numbers
-        return [num for num, _ in num_freq]
+        return [num for _, num, _ in indexed_nums]
