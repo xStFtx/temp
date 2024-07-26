@@ -1,37 +1,32 @@
 class Solution:
-    def sortArray(self, nums: List[int]) -> List[int]:
-        def merge_sort(arr, left, right):
-            if left < right:
-                mid = (left + right) // 2
-                merge_sort(arr, left, mid)
-                merge_sort(arr, mid + 1, right)
-                merge(arr, left, mid, right)
-
-        def merge(arr, left, mid, right):
-            left_half = arr[left:mid+1]
-            right_half = arr[mid+1:right+1]
+    def findTheCity(self, n: int, edges: List[List[int]], distanceThreshold: int) -> int:
+        # Initialize the distance matrix with infinity
+        dist = [[float('inf')] * n for _ in range(n)]
+        
+        # Set the distance to self as 0
+        for i in range(n):
+            dist[i][i] = 0
+        
+        # Initialize the distances based on the given edges
+        for u, v, w in edges:
+            dist[u][v] = dist[v][u] = w
+        
+        # Floyd-Warshall algorithm to find shortest paths
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+        
+        min_reachable = float('inf')
+        result_city = -1
+        
+        # Count reachable cities for each city
+        for i in range(n):
+            reachable = sum(1 for j in range(n) if dist[i][j] <= distanceThreshold)
             
-            i = j = 0
-            k = left
-            
-            while i < len(left_half) and j < len(right_half):
-                if left_half[i] <= right_half[j]:
-                    arr[k] = left_half[i]
-                    i += 1
-                else:
-                    arr[k] = right_half[j]
-                    j += 1
-                k += 1
-            
-            while i < len(left_half):
-                arr[k] = left_half[i]
-                i += 1
-                k += 1
-            
-            while j < len(right_half):
-                arr[k] = right_half[j]
-                j += 1
-                k += 1
-
-        merge_sort(nums, 0, len(nums) - 1)
-        return nums
+            # Update result if this city has fewer or equal reachable cities
+            if reachable <= min_reachable:
+                min_reachable = reachable
+                result_city = i
+        
+        return result_city
