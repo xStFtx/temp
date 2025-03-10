@@ -1,31 +1,43 @@
-from typing import List
-
 class Solution:
-    def closestPrimes(self, left: int, right: int) -> List[int]:
-        # Step 1: Sieve of Eratosthenes to find all primes up to 10^6
-        MAX = 10**6
-        sieve = [True] * (MAX + 1)
-        sieve[0] = sieve[1] = False
-        
-        for i in range(2, int(MAX**0.5) + 1):
-            if sieve[i]:
-                for j in range(i * i, MAX + 1, i):
-                    sieve[j] = False
-        
-        # Step 2: Collect all primes within the given range [left, right]
-        primes = [i for i in range(left, right + 1) if sieve[i]]
-        
-        # Step 3: Find the closest pair of primes
-        if len(primes) < 2:
-            return [-1, -1]
-        
-        min_gap = float('inf')
-        result = [-1, -1]
-        
-        for i in range(1, len(primes)):
-            gap = primes[i] - primes[i - 1]
-            if gap < min_gap:
-                min_gap = gap
-                result = [primes[i - 1], primes[i]]
-        
-        return result
+    def _isVowel(self, c: str) -> bool:
+        return c in ["a", "e", "i", "o", "u"]
+
+    def _atLeastK(self, word: str, k: int) -> int:
+        num_valid_substrings = 0
+        start = 0
+        end = 0
+        # keep track of counts of vowels and consonants
+        vowel_count = {}
+        consonant_count = 0
+
+        # start sliding window
+        while end < len(word):
+            # insert new letter
+            new_letter = word[end]
+
+            # update counts
+            if self._isVowel(new_letter):
+                vowel_count[new_letter] = vowel_count.get(new_letter, 0) + 1
+            else:
+                consonant_count += 1
+
+            # shrink window while we have a valid substring
+            while len(vowel_count) == 5 and consonant_count >= k:
+                num_valid_substrings += len(word) - end
+                start_letter = word[start]
+                if self._isVowel(start_letter):
+                    vowel_count[start_letter] = (
+                        vowel_count.get(start_letter) - 1
+                    )
+                    if vowel_count.get(start_letter) == 0:
+                        vowel_count.pop(start_letter)
+                else:
+                    consonant_count -= 1
+                start += 1
+
+            end += 1
+
+        return num_valid_substrings
+
+    def countOfSubstrings(self, word: str, k: int) -> int:
+        return self._atLeastK(word, k) - self._atLeastK(word, k + 1)
