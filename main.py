@@ -1,19 +1,14 @@
+from bisect import bisect_left, bisect_right
+from typing import List
+
 class Solution:
-    def numberOfSubstrings(self, s: str) -> int:
-        from collections import defaultdict
-
-        count = defaultdict(int)
-        res = 0
-        left = 0
-
-        for right in range(len(s)):
-            count[s[right]] += 1
-
-            # When window contains at least one 'a', 'b', and 'c'
-            while count['a'] > 0 and count['b'] > 0 and count['c'] > 0:
-                # All substrings starting from left to right are valid
-                res += len(s) - right
-                count[s[left]] -= 1
-                left += 1
-
-        return res
+    def maximumCount(self, nums: List[int]) -> int:
+        # Find first index of number >= 0
+        neg_count = bisect_left(nums, 0)
+        
+        # Find first index of number > 0
+        pos_start = bisect_right(nums, 0)
+        pos_count = len(nums) - pos_start
+        
+        # Return max of both counts
+        return max(neg_count, pos_count)
